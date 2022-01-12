@@ -1,0 +1,11 @@
+# quick compile yafu 2.0
+lanch compile.sh !
+
+warning: This yafu use avx512 and sse4.1 in default.
+
+
+# references
+https://www.mersenneforum.org/showthread.php?t=23087
+https://www.mersenneforum.org/showthread.php?t=26681
+https://github.com/bbuhrow/yafu
+

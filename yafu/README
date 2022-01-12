@@ -1,0 +1,243 @@
+-------------------------------------------------------------------------------
+INTRODUCTION
+-------------------------------------------------------------------------------
+
+YAFU is the result of an ongoing hobby project to understand how to factor 
+large integers, and how to factor them fast.  Various motivations exist for 
+doing this, but mostly it boils down to the facts that A) I like to do it, and
+B) for some reason factoring integers is cool.  The fact that integer 
+factorization is used real world public-key encryption schemes, and lots of 
+people owning black helicopters therefore have a vested interest in it, might 
+have something to do with that.  This is not to say that YAFU is useful for
+factoring public keys, but there are plenty of other numbers out there and
+it is still fun to do.  A community of factorization enthusiasts can be 
+found at mersenneforum.org.
+
+-------------------------------------------------------------------------------
+OVERVIEW
+-------------------------------------------------------------------------------
+
+YAFU (with assistance from other free software) uses the most powerful modern
+algorithms (and implementations of them) to factor input integers in a 
+completely automated way.  The automation within YAFU is state-of-the-art, 
+combining factorization algorithms in an intelligent and adaptive methodology 
+that minimizes the time to find the factors of arbitrary input integers.  
+It is most optimized for general inputs up to 160 digits in size, although 
+there is support for inputs much larger than that, if they have a special 
+form.  There are also specialized functions for handling  lists of inputs and 
+ranges of contiguous smaller inputs.
+
+YAFU is primarily a command-line driven tool.  You provide the number to factor
+and, via screen output and log files, YAFU will provide you the factors.  
+But that's not all!  You also get an interactive environment similar to MATLAB
+or PARI/GP, where you can type commands and store results.  The functionality
+of this interface is limited, but perhaps useful, and I have plans to make it
+better.  YAFU also provides a vast amount of flexibility, through many many
+options and a very capable expression interpreter.  If you know what you are
+doing, or if you read the documentation enough, you can customize the operation
+of YAFU a great deal.  You should have received a copy of docfile.txt, which
+explains in some detail all of the available functions, how to use them,
+and how to influence their behavior.
+
+-------------------------------------------------------------------------------
+INSTALLATION
+-------------------------------------------------------------------------------
+
+No installation necessary, just put the binary in whatever location you like 
+and run it.  Files that YAFU generates are placed alonside the binary, and 
+directories/files that YAFU needs are with respect to the binary location 
+(such as the ggnfs sievers, see below)
+
+Support and an active user community can be found here:
+http://www.mersenneforum.org/forumdisplay.php?f=96
+
+-------------------------------------------------------------------------------
+INSTALLATION WITH NUMBER FIELD SIEVE (NFS) SUPPORT
+-------------------------------------------------------------------------------
+
+To run the general or special number field sieve using YAFU, you will need to 
+provide ggnfs executable files and make the location of these files known to 
+YAFU at runtime.  The easiest way to obtain the files is through Jeff 
+Gilchrist's website: http://gilchrist.ca/jeff/factoring/index.html
+
+Download the .zip file for your OS and unzip it to a directory  on your 
+computer.  The easiest way to let yafu know where these are is to create/modify  
+a yafu.ini file (which should appear in the same directory as your YAFU 
+executable) to contain a line specifying ggnfs_dir in the following way:
+ggnfs_dir=<location relative to yafu executable>
+
+For instance, if your ggnfs executables were located adjacent to
+the yafu folder in the directory tree, in a folder called ggnfs-bin, then the 
+line would be:
+ggnfs_dir=..\ggnfs-bin\
+
+The ggnfs executables accomplish the sieving portion of NFS.  The other phases
+are all handled internally to YAFU via a supporting library, msieve.  Here are
+some quick references on for more information about the number field sieve 
+or msieve:
+http://mathworld.wolfram.com/NumberFieldSieve.html
+http://en.wikipedia.org/wiki/General_number_field_sieve
+http://sourceforge.net/projects/msieve/
+http://www.boo.net/~jasonp/qs.html
+
+-------------------------------------------------------------------------------
+BUILD INFORMATION
+-------------------------------------------------------------------------------
+
+Pre-compiled binaries are provided for windows.  However, anyone 
+is welcome to compile from source for your own system.  If you can make a 
+binary which beats the performance of one of the pre-compiled versions for a 
+particular architecture, I'd love to hear about it!
+
+Linux 64 bit OS (including Windows Subsystem for Linux, WSL)
+=============
+make yafu [NFS=1] [USE_SSE41=1] [USE_AVX2=1] [USE_BMI2=1] [SKYLAKEX=1] [ICELAKE=1]
+
+I've built and tested with gcc and icc.  Enable either by using
+COMPILER=gcc or COMPILER=icc on the make line.
+
+Optionally enable GNFS factorizations by setting NFS=1 during make.  This will 
+require the makefile to be edited to point to the libmsieve.a library.  By 
+default, it is assumed to be located at ../msieve/ relative to the Makefile.  
+
+YAFU now requires several other projects to be built before yafu.  These are:
+gmp (https://gmplib.org/)
+gmp-ecm (http://ecm.gforge.inria.fr/)
+ytools (https://github.com/bbuhrow/ytools)
+ysieve (https://github.com/bbuhrow/ysieve)
+
+Some support can be had here:
+http://www.mersenneforum.org/forumdisplay.php?f=96
+
+If your computer supports them, yafu can make use of several modern instruction
+set extensions, including SSE41, AVX2, and AVX512 (various extensions).
+SKYLAKEX will add support for AVX512F and AVX512BW.
+ICELAKE will add support for AVX512F, AVX512BW, and AVX512IFMA.
+Primarily these are used in SIQS.  If you have AVX512 on your cpu, yafu will
+also use AVX-ECM as the default ECM implementation.  For a standalone 
+version of AVX-ECM, please refer to:
+https://github.com/bbuhrow/avx-ecm
+
+
+
+
+WINDOWS MS Visual Studio
+=============
+
+Build files are available for several versions of MSVC.  The directory structure is 
+important for these builds, especially if GMP-ECM or NFS support is desired.  
+The build files expect to see an mpir, msieve, gmp-ecm, ytools, and ysieve folder at 
+the same  level as the YAFU folder in the directory tree, with the following structure:
+
+msieve
+	build.vc10
+		common
+			Win32
+				Release					
+					common.lib
+			x64
+				Release					
+					common.lib
+		gnfs
+			Win32
+				Release
+					gnfs.lib
+			x64
+				Release
+					gnfs.lib
+
+gmp-ecm
+	ecm.h
+	config.h
+	build.vc9
+		Win32
+			Release
+				ecm.lib
+		x64
+			Release
+				ecm.lib
+	build.vc10
+		Win32
+			Release
+				libecm.lib
+		x64
+			Release
+				libecm.lib
+mpir
+	gmp.h
+	config.h
+	gmp-mparam.h
+	mpir.h
+	build.vc9
+		Win32
+			Release
+				mpir.lib
+		x64
+			Release
+				mpir.lib
+	build.vc10
+		Win32
+			Release
+				mpir.lib
+		x64
+			Release
+				mpir.lib
+				
+yafu
+    trunk
+        build.vc9
+            ...
+        build.vc10
+            ...
+            
+ytools
+    ytools
+        x64
+            Release
+                ytools.lib
+ysieve
+    ysieve_lib
+        x64
+            Release
+                ysieve_lib.lib
+                    
+		
+The mpir and gmp-ecm libraries will need to be built separately, for either 
+Win32 or x64 targets.  To change the target for a yafu build, within MSVC 
+select Build -> Configuration Manger then in the Active Solution Platform 
+pulldown choose x64 or Win32.
+
+MINGW-64
+=============
+YAFU should build in mingw-64 environment.  The  src zip file should 
+include a Makefile.mingw for this purpose.  The build should be similar to
+a linux build.  This option is less-well tested.
+
+OTHER
+=============
+If you build yafu on other platforms or using other IDE's or
+compilers, please let me know about it.
+
+
+-------------------------------------------------------------------------------
+HELP INFORMATION
+-------------------------------------------------------------------------------
+
+Detailed documentation is available in docfile.txt, which can be viewed during 
+an interactive YAFU session by typing 'help'.  The default yafu.ini also 
+contains descriptions of available options.
+
+If you want to see the docfile from within the program, it needs to be in the 
+same directory as the executable.
+
+Check back at https://github.com/bbuhrow/yafu for updates.
+
+---------------------------------------------------------------
+MISC INFORMATION
+---------------------------------------------------------------
+Here's a fun test case for factor(), which uses many of the 
+algorithms in yafu
+factor(2056802480868100646375721251575555494408897387375737955882170045672576386016591560879707933101909539325829251496440620798637813)
+
+neat example for ecm:
+140870298550359924914704160737419905257747544866892632000062896476968602578482966342704
