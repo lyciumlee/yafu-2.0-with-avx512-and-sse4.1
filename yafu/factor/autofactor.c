@@ -563,7 +563,10 @@ int check_if_done(fact_obj_t *fobj, mpz_t N)
 						// load the new fobj with this number
 						fobj_refactor = (fact_obj_t *)malloc(sizeof(fact_obj_t));
 						init_factobj(fobj_refactor);
+                        copy_factobj(fobj_refactor, fobj);
+
 						mpz_set(fobj_refactor->N, fobj->factors->factors[i].factor);
+                        fobj_refactor->refactor_depth = fobj->refactor_depth;
 
 						// recurse on factor
 						factor(fobj_refactor);
@@ -1823,12 +1826,12 @@ void factor(fact_obj_t *fobj)
 			if (fobj->VFLAG > 0)
 				printf("fac: found siqs savefile, resuming siqs\n");
 
-			// remove any common factor so the input exactly matches
-			// the file
-			// mpz_tdiv_q(b, b, g);
-			// mpz_set(fobj->N, b);
-			// mpz_set(origN, b);
-			// mpz_set(copyN, b);
+            // if the inputs don't match exactly, resume siqs on the exact
+            // number in the savefile and put the cofactor (prime or composite)
+            // into the factor list.  If composite it will get refactored.
+            add_to_factor_list(fobj->factors, g, fobj->VFLAG, fobj->NUM_WITNESSES);
+
+            mpz_set(b, tmpz);
 
 			//override default choice
 			fact_state = state_qs;
