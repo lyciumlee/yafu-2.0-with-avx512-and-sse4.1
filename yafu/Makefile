@@ -16,7 +16,7 @@
 # code to the public domain.
 #        				   --bbuhrow@gmail.com 7/28/09
 # ----------------------------------------------------------------------*/
-
+COMPILER = gcc
 CC = gcc
 CFLAGS = -g -m64 -DUSE_SSE2
 #CFLAGS += -march=core2 -mtune=core2
@@ -40,11 +40,11 @@ LIBS = -L.
 INC += -I../ysieve -I../ytools
 LIBS += -L../ysieve -L../ytools
 
-INC += -I../gmp_install/gmp-6.2.0/include
-LIBS += -L../gmp_install/gmp-6.2.0/lib
+INC += -I../gmp-6.2.1/
+LIBS += -L../gmp-6.2.1/
 
-INC += -I../ecm_install/include/
-LIBS += -L../ecm_install/lib/
+INC += -I../avx-ecm/
+LIBS += -L../avx-ecm/
 
 INC += -I../msieve/zlib 
 LIBS += -L../msieve/
@@ -145,7 +145,7 @@ ifeq ($(FORCE_GENERIC),1)
 endif
 
 # make sure we get the correct libgmp linked by using an absolute path
-LIBS += -lecm /users/buhrow/src/c/gmp_install/gmp-6.2.0/lib/libgmp.a -lytools -lysieve
+LIBS += -lecm ../gmp-6.2.1/.libs/libgmp.a -lytools -lysieve
 #LIBS += -lecm -lgmp -lytools -lysieve
 
 ifeq ($(SKYLAKEX),1)
@@ -173,7 +173,7 @@ ifeq ($(COMPILER),icc)
 	LIBS +=  -lsvml
 endif
 
-CFLAGS += $(OPT_FLAGS) $(WARN_FLAGS) $(INC)
+CFLAGS += -static $(OPT_FLAGS) $(WARN_FLAGS) $(INC)
 
 x86: CFLAGS += -m32
 
